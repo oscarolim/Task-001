@@ -23,17 +23,18 @@ function getYoutubeData(videoId, ApiKey)
         if(res.data.items.length > 0)
         {
             let details = res.data.items[0];
-            if(details.snippet.categoryId == 20)
-            //Game categoryId is 20
             result = {
                 status: 'success',
                 title: details.snippet.title,
                 description: details.snippet.description,
                 channelName: details.snippet.channelTitle,
+                channelId: details.snippet.channelId,
                 gameName: details.snippet.categoryId == 20 ? getBestGuessGameName(details.snippet.tags) : ''
             }
+            resolve(result);
         }
-      resolve(result);
+        else
+            reject('Video not found');
     });
   });
 }

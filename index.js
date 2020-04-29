@@ -2,6 +2,7 @@ const youtube = require('./youtube');
 const twitch = require('./twitch');
 const express = require('express');
 const app = express();
+const path = require('path');
 
 app.get('/', (req, res) => {
     /*let text = "<strong>/video/:id</strong><br />";
@@ -9,11 +10,7 @@ app.get('/', (req, res) => {
     text += "<strong>/streamer/:id</strong><br />";
     text += "Returns the streaming status and the game name (if streaming) of the streamer :id";
     res.send(text);*/
-    fs.readFile("index.html", function(err, data){
-        response.writeHead(200, {'Content-Type': 'text/html'});
-        response.write(data);
-        response.end();
-    });
+    res.sendFile(path.join(__dirname+'/index.html'));
 });
 
 app.get('/video/:id/:apikey', (req, res) => {

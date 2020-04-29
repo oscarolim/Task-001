@@ -9,10 +9,11 @@ function getStreamerData(streamerName, ApiKey)
             console.log(err);
             reject(err);
         } else {
+            console.log(res);
             if(res._total > 0)
                 resolve(res.users[0]._id);
             else
-                reject('Invalid streamer name');
+                reject(res.message ?? 'Invalid streamer name');
         }
     });
   });
@@ -37,9 +38,9 @@ function getStreamStatus(streamerId, ApiKey)
                 {
                     let details = res.streams[0];
                     result = {
-                    name: details.channel.display_name,
-                    streaming: true,
-                    gameTitle: details.game
+                        name: details.channel.display_name,
+                        streaming: true,
+                        gameTitle: details.game
                     }
                 }
                 resolve(result);
@@ -49,7 +50,7 @@ function getStreamStatus(streamerId, ApiKey)
   });
 }
 
-// using async call as we want the call to YT Api to complete before sending the response
+// using async call as we want the call to Twitch Api to complete before sending the response
 async function getStreamer(streamerName, ApiKey)
 {
 	try {

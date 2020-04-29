@@ -1,13 +1,193 @@
-<!doctype HTML>
-<html>
-  <head>
-    <title>
-      Index
-    </title>
-  </head>
-  <body>
-    <h1>
-      Hello! Now you know how to serve HTML files using Node.js!!!
-    </h1>
-  </body>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <title>Node.js API</title>
+        <style>
+            #content-youtube,
+            #content-twitch 
+            {
+                display: none;
+            }
+
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-dark navbar-expand-md shadow-lg position-fixed fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">Node.js API</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item"><a class="nav-link active" href="#" data-id="home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-id="youtube">Youtube endpoint</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-id="twitch">Twitch endpoint</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="mt-4 pt-5">
+            <div class="selectable-content" id="content-home">
+                <div class="row justify-content-center">
+                    <div class="col-8 col-md-6">
+                        <h1>About</h1>
+                        <p>Using Node.js, I had to create an API with two endpoints. One would receive a Youtube video ID and would return information about it. The other would receive a Twitch ID and return information about the stream of that user.</p>
+                        <p>For Youtube I used their <a href="https://developers.google.com/youtube/v3/quickstart/nodejs" target="_blank">own module</a> for Node.js, whereas for Twitch I used a third party module available <a href="https://github.com/thedist/Twitch_API_v5/" target="_blank">here</a>.</p>
+                        <p>For the Youtube part, one of the requests was to return the name of the game, for gaming videos. However Google doesn't have this available on their API. To circuvent this, I used a best guess function, where I analise the tags, and choose the string that shows up more often.</p>
+                        <p>For example, with a tag list of {F1 2020, F1 2020 game, F1 2020 video, Formula 1, F1 video}, the name chosen will be F1 2020, as it shows (partially) in 3 different tags.</p>
+                        <p>Also had some trouble on how to wait for the reply from Youtube / Twitch api, as JS is asynchronous by nature. The solution I used for this was to use promises, as this allows me to wait for the completion using await / async.</p>
+                        <p>For sending the data back, instead of using the native http, I used <a href="http://expressjs.com/" target="_blank">Express</a>, as it has better support for json responses (I was having some encoding issues using http and Youtube description field).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="selectable-content" id="content-youtube">
+                <div class="row justify-content-center">
+                    <div class="col-8 col-md-6">
+                        <h1>Youtube</h1>
+                        <p><strong>/video/:id/:apikey</strong></p>
+                        <p>:id is the video id, :apikey the secret Google api key</p>
+                        <p>It returns {status: 'error', error: {msg}} if it was unsuccessful in retrieving the information.</p>
+                        <p>Otherwise it returns {status: 'success', title: string, description: string, channelName: string, channelId: string, gameName: string}</p>
+                        <p>[gameName] is only returned if the video belongs to the Gaming category (categoryId 20).</p>
+
+                        <h2>Try out</h2>
+                        <form onsubmit="return false;">
+                            <div class="form-group">
+                                <label for="video_id">Video ID</label>
+                                <input type="text" class="form-control" id="video_id" aria-describedby="Video ID" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="google_api">Google API Key</label>
+                                <input type="text" class="form-control" id="google_api" aria-describedby="Google API Key" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="submitYoutube()">Submit</button>
+                        </form>
+                        <div id="youtube-result" class="my-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="selectable-content" id="content-twitch">
+                <div class="row justify-content-center">
+                    <div class="col-8 col-md-6">
+                        <h1>Twitch</h1>
+                        <p><strong>/streamer/:name/:apikey</strong></p>
+                        <p>:name is the name of the streamer, :apikey the secret Twitch client id key</p>
+                        <p>It returns {status: 'error', error: {msg}} if it was unsuccessful in retrieving the information.</p>
+                        <p>Otherwise it returns {status: 'success', name: string, streaming: boolean, gameTitle: string} if the user is streaming.</p>
+                        <p>if not, it returns {status: 'success', streaming: false}</p>
+
+                        <h2>Try out</h2>
+                        <form onsubmit="return false;">
+                            <div class="form-group">
+                                <label for="streamer_id">Streamer name</label>
+                                <input type="text" class="form-control" id="streamer_id" aria-describedby="Streamer name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="twitch_api">Twitch client id key</label>
+                                <input type="text" class="form-control" id="twitch_api" aria-describedby="Twitch client id key" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="submitTwitch()">Submit</button>
+                        </form>
+                        <div id="twitch-result" class="my-4"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(function(){
+                $('.nav-link').click((evt) => {
+                    $('.nav-link').removeClass('active');
+                    $(evt.target).addClass('active');
+                    $('.selectable-content').hide(0);
+                    $('#content-' + $(evt.target).data('id')).show(0);
+                })
+            });
+
+            function submitYoutube()
+            {
+                $('#youtube-result').html('');
+                $.ajax({
+                    type:'GET',
+                    url: 'video/' + $('#video_id').val() + '/' + $('#google_api').val(),
+                    cache:false,
+                    contentType: false,
+                    processData: false,
+                    success:function(data){
+                        console.log(data);
+                        if(data.status == 'error')
+                            $('#youtube-result').html('<p>' + (data.error.response != undefined ? data.error.response.statusText : data.error) + '</p>');
+                        else
+                        {
+                            let html = '<h3>' + data.title + '</h3><h4><a href="https://www.youtube.com/channel/' + data.channelId + '" target="_blank">' + data.channelName + '</a></h4>';
+                            if(data.gameName != '')
+                                html += '<p>Game (best guess): <strong>' + data.gameName + '</strong></p>';
+                            html += '<p class="youtube-description">' + data.description + '</p>';
+                            html += '<div class="embed-responsive embed-responsive-21by9"><iframe class="embed-responsive-item" src="https://www.youtube.com/embed/' + $('#video_id').val() + '"></iframe></div>';
+                            html += '<div class="mt-4"><code>' + JSON.stringify(data) + '</code></div>';
+                            $('#youtube-result').html(html);
+                            $('.youtube-description').clickUrl();
+                        }
+                    },
+                    error: function(data){
+                        console.log(data);
+                    }
+                });
+            }
+
+            function submitTwitch()
+            {
+                $('#youtube-result').html('');
+                $.ajax({
+                    type:'GET',
+                    url: 'streamer/' + $('#streamer_id').val() + '/' + $('#twitch_api').val(),
+                    cache:false,
+                    contentType: false,
+                    processData: false,
+                    success:function(data){
+                        console.log(data);
+                        if(data.status == 'error')
+                            $('#twitch-result').html('<p>' + (data.error.response != undefined ? data.error.response.statusText : data.error) + '</p>');
+                        else
+                        {
+                            let html = '<h3><a href="http://twitch.com/' + $('#streamer_id').val() + '" target="_blank">' + $('#streamer_id').val() + '</a> is ' + (data.streaming ? 'streaming' : 'offline') + '</h4>';
+                            if(data.streaming != '')
+                            {
+                                html += '<p>Currently streaming: <strong>' + data.gameTitle + '</strong></p>';
+                                html += '<div class="embed-responsive embed-responsive-21by9"><iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel=' + $('#streamer_id').val() + '"></iframe></div>';
+                            }
+                            html += '<div class="mt-4"><code class="mt-4">' + JSON.stringify(data) + '</code></div>';
+                            $('#twitch-result').html(html);
+                        }
+                    },
+                    error: function(data){
+                        console.log(data);
+                    }
+                });
+            }
+
+            //Source: https://snipplr.com/view/21576/createparse-links-from-text-in-jquery
+            $.fn.clickUrl = function() {
+                var regexp = /((ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/\"]))?)/gi;
+                this.each(function() {
+                    $(this).html(
+                        $(this).html().replace(regexp,'<a href="$1" target="_blank">$1</a>').replace(/(?:\r\n|\r|\n)/g, '<br />')
+                    );
+                });
+                return $(this);
+            }
+        </script>
+    </body>
 </html>
