@@ -54,7 +54,9 @@ function getStreamStatus(streamerId, ApiKey)
 async function getStreamer(streamerName, ApiKey)
 {
 	try {
+        //First we get the streamer id from the name...
         const streamerId = await getStreamerData(streamerName, ApiKey);
+        //To then do a further request for the stream information
         return await getStreamStatus(streamerId, ApiKey);
 	}
 	catch(error) {

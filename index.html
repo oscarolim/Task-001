@@ -44,6 +44,7 @@
                         <p>For example, with a tag list of {F1 2020, F1 2020 game, F1 2020 video, Formula 1, F1 video}, the name chosen will be F1 2020, as it shows (partially) in 3 different tags.</p>
                         <p>Also had some trouble on how to wait for the reply from Youtube / Twitch api, as JS is asynchronous by nature. The solution I used for this was to use promises, as this allows me to wait for the completion using await / async.</p>
                         <p>For sending the data back, instead of using the native http, I used <a href="http://expressjs.com/" target="_blank">Express</a>, as it has better support for json responses (I was having some encoding issues using http and Youtube description field).</p>
+                        <p>If using the endpoints without the respective service's API key, then they <strong>should be declared on the index.js</strong> file.</p>
                     </div>
                 </div>
             </div>
@@ -54,6 +55,8 @@
                         <h1>Youtube</h1>
                         <p><strong>/video/:id/:apikey</strong></p>
                         <p>:id is the video id, :apikey the secret Google api key</p>
+                        <p><strong>/video/:id/</strong></p>
+                        <p>:id is the video id</p>
                         <p>It returns {status: 'error', error: {msg}} if it was unsuccessful in retrieving the information.</p>
                         <p>Otherwise it returns {status: 'success', title: string, description: string, channelName: string, channelId: string, gameName: string}</p>
                         <p>[gameName] is only returned if the video belongs to the Gaming category (categoryId 20).</p>
@@ -81,6 +84,8 @@
                         <h1>Twitch</h1>
                         <p><strong>/streamer/:name/:apikey</strong></p>
                         <p>:name is the name of the streamer, :apikey the secret Twitch client id key</p>
+                        <p><strong>/streamer/:name/</strong></p>
+                        <p>:name is the name of the streamer</p>
                         <p>It returns {status: 'error', error: {msg}} if it was unsuccessful in retrieving the information.</p>
                         <p>Otherwise it returns {status: 'success', name: string, streaming: boolean, gameTitle: string} if the user is streaming.</p>
                         <p>if not, it returns {status: 'success', streaming: false}</p>
