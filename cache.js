@@ -2,7 +2,7 @@ let apiCache = {youtube:{}, twitch: {}};
 
 function getCache(bucket, id)
 {
-    console.log('Fetching cache for ' + bucket + 'with id ' + id + (apiCache[bucket][id] != null ? '... it exists' : '... not found'));
+    console.log('Fetching cache for ' + bucket + ' with id ' + id + (apiCache[bucket][id] != null ? '... it exists' : '... not found'));
     return apiCache[bucket][id];
 }
 

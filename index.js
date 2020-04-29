@@ -33,13 +33,27 @@ app.get('/streamer/:name/:apikey', (req, res) => {
         res.status(400).send('Streamer name is required');
     if(req.params.apikey == '')
         res.status(400).send('Twitch Client ID  key is required');
-    twitch(req.params.name, req.params.apikey, cache, res);
+    twitch.stream(req.params.name, req.params.apikey, cache, res);
 });
 
 app.get('/streamer/:name', (req, res) => {
     if(req.params.name == '')
         res.status(400).send('Streamer name is required');
-    twitch(req.params.name, TWITCH_CLIENT_ID, cache, res);
+    twitch.stream(req.params.name, TWITCH_CLIENT_ID, cache, res);
+});
+
+app.get('/streamerById/:id/:apikey', (req, res) => {
+    if(req.params.id == '')
+        res.status(400).send('Streamer ID is required');
+    if(req.params.apikey == '')
+        res.status(400).send('Twitch Client ID  key is required');
+    twitch.streamById(req.params.id, req.params.apikey, cache, res);
+});
+
+app.get('/streamerById/:id', (req, res) => {
+    if(req.params.id == '')
+        res.status(400).send('Streamer ID is required');
+    twitch.streamById(req.params.id, TWITCH_CLIENT_ID, cache, res);
 });
 
 const port = process.env.PORT || 8080;
