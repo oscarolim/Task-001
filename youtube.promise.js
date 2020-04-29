@@ -1,14 +1,8 @@
 var {google} = require('googleapis');
 
-function getYoutubeData(videoId, ApiKey, cache, globalResponse)
+function getYoutubeData(videoId, ApiKey)
 { 
-    let cachedData = cache.getCache('youtube', videoId);
-    if(cachedData != null)
-    {
-        globalResponse.json(cachedData);
-        return;
-    }
-
+  return new Promise((resolve, reject) => {
     let result = {status: 'success'};
     const params = {
         id: videoId,
@@ -22,11 +16,11 @@ function getYoutubeData(videoId, ApiKey, cache, globalResponse)
 
     youtube.videos.list(params, (err, res) => {
         if (err){
-            result = {status: 'error', error: err};
+            reject(err);
         }
 
         if(res == undefined)
-            result = {status: 'error', error: 'Invalid API Key'};
+            reject('Invalid API Key');
         else
         {
             if(res.data.items.length > 0)
@@ -40,13 +34,13 @@ function getYoutubeData(videoId, ApiKey, cache, globalResponse)
                     channelId: details.snippet.channelId,
                     gameName: details.snippet.categoryId == 20 ? getBestGuessGameName(details.snippet.tags) : ''
                 }
-                cache.setCache('youtube', videoId, result);
+                resolve(result);
             }
             else
-            result = {status: 'error', error: 'Video not found'};
+                reject('Video not found');
         }
-        globalResponse.json(result);
     });
+  });
 }
 
 function getBestGuessGameName(tags)
@@ -72,4 +66,15 @@ function getBestGuessGameName(tags)
     return bestGuessTag;
 }
 
-module.exports = getYoutubeData;
+// using async call as we want the call to YT Api to complete before sending the response
+async function getVideo(videoId, ApiKey)
+{
+	try {
+		return await getYoutubeData(videoId, ApiKey);
+	}
+	catch(error) {
+        return {status: 'error', error: error}
+	}
+}
+
+module.exports = getVideo;

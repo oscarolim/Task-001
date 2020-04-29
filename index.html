@@ -42,7 +42,7 @@
                         <p>For Youtube I used their <a href="https://developers.google.com/youtube/v3/quickstart/nodejs" target="_blank">own module</a> for Node.js, whereas for Twitch I used a third party module available <a href="https://github.com/thedist/Twitch_API_v5/" target="_blank">here</a>.</p>
                         <p>For the Youtube part, one of the requests was to return the name of the game, for gaming videos. However Google doesn't have this available on their API. To circuvent this, I used a best guess function, where I analise the tags, and choose the string that shows up more often.</p>
                         <p>For example, with a tag list of {F1 2020, F1 2020 game, F1 2020 video, Formula 1, F1 video}, the name chosen will be F1 2020, as it shows (partially) in 3 different tags.</p>
-                        <p>Also had some trouble on how to wait for the reply from Youtube / Twitch api, as JS is asynchronous by nature. The solution I used for this was to use promises, as this allows me to wait for the completion using await / async.</p>
+                        <p>I used two methods to fetch the information. The async way, and using promises.</p>
                         <p>For sending the data back, instead of using the native http, I used <a href="http://expressjs.com/" target="_blank">Express</a>, as it has better support for json responses (I was having some encoding issues using http and Youtube description field).</p>
                         <p>If using the endpoints without the respective service's API key, then they <strong>should be declared on the index.js</strong> file.</p>
                     </div>
@@ -69,7 +69,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="google_api">Google API Key</label>
-                                <input type="text" class="form-control" id="google_api" aria-describedby="Google API Key" required>
+                                <input type="text" class="form-control" id="google_api" aria-describedby="Google API Key">
                             </div>
                             <button type="submit" class="btn btn-primary" onclick="submitYoutube()">Submit</button>
                         </form>
@@ -98,7 +98,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="twitch_api">Twitch client id key</label>
-                                <input type="text" class="form-control" id="twitch_api" aria-describedby="Twitch client id key" required>
+                                <input type="text" class="form-control" id="twitch_api" aria-describedby="Twitch client id key">
                             </div>
                             <button type="submit" class="btn btn-primary" onclick="submitTwitch()">Submit</button>
                         </form>
@@ -126,7 +126,7 @@
                 $('#youtube-result').html('');
                 $.ajax({
                     type:'GET',
-                    url: 'video/' + $('#video_id').val() + '/' + $('#google_api').val(),
+                    url: 'video/' + $('#video_id').val() + ($('#google_api').val() != '' ? '/' + $('#google_api').val() : ''),
                     cache:false,
                     contentType: false,
                     processData: false,
@@ -157,7 +157,7 @@
                 $('#youtube-result').html('');
                 $.ajax({
                     type:'GET',
-                    url: 'streamer/' + $('#streamer_id').val() + '/' + $('#twitch_api').val(),
+                    url: 'streamer/' + $('#streamer_id').val() + ($('#twitch_api').val() != '' ? '/' + $('#twitch_api').val() : ''),
                     cache:false,
                     contentType: false,
                     processData: false,

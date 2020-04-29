@@ -1,67 +1,51 @@
 var twitch = require('twitch-api-v5');
 
-function getStreamerData(streamerName, ApiKey)
+function getStreamerData(streamerName, ApiKey, cache, globalResponse)
 { 
-  return new Promise((resolve, reject) => {
+    let cachedData = cache.getCache('twitch', streamerName);
+    if(cachedData != null)
+    {
+        globalResponse.json(cachedData);
+        return;
+    }
+
+    let result = {status: 'error'};
     twitch.clientID = ApiKey;
     twitch.users.usersByName({users: streamerName}, (err, res) => {
         if(err) {
-            console.log(err);
-            reject(err);
+            globalResponse.json({status: 'error', error: err});
         } else {
-            console.log(res);
             if(res._total > 0)
-                resolve(res.users[0]._id);
+                getStreamStatus(res.users[0]._id, streamerName, ApiKey, cache, globalResponse);
             else
-                reject(res.message ?? 'Invalid streamer name');
+            globalResponse.json({status: 'error', error: res.message != undefined ? res.message : 'Invalid streamer name'});
         }
     });
-  });
 }
 
-function getStreamStatus(streamerId, ApiKey)
+function getStreamStatus(streamerId, streamerName, ApiKey, cache, globalResponse)
 {
-  return new Promise((resolve, reject) => {
-    if(streamerId == null)
-        reject('Invalid streamer id');
-    else
-    {
-        twitch.clientID = ApiKey;
-        twitch.streams.live({channel: streamerId}, (err, res) => {
-            if(err) {
-                console.log(err);
-                reject(error);
-            } else {
-                let result = {status: 'success', streaming: false}
-                console.log(res);
-                if(res.streams.length > 0)
-                {
-                    let details = res.streams[0];
-                    result = {
-                        name: details.channel.display_name,
-                        streaming: true,
-                        gameTitle: details.game
-                    }
+    twitch.clientID = ApiKey;
+    twitch.streams.live({channel: streamerId}, (err, res) => {
+        if(err) {
+            globalResponse.json({status: 'error', error: err});
+        } else {
+            let result = {status: 'success', streaming: false}
+            if(res.streams.length > 0)
+            {
+                let details = res.streams[0];
+                result = {
+                    status: 'success',
+                    name: details.
+                    channel.display_name,
+                    streaming: true,
+                    gameTitle: details.game
                 }
-                resolve(result);
+                cache.setCache('twitch', streamerName, result);
             }
-        });
-    }
-  });
+            globalResponse.json(result);
+        }
+    });
 }
 
-// using async call as we want the call to Twitch Api to complete before sending the response
-async function getStreamer(streamerName, ApiKey)
-{
-	try {
-        //First we get the streamer id from the name...
-        const streamerId = await getStreamerData(streamerName, ApiKey);
-        //To then do a further request for the stream information
-        return await getStreamStatus(streamerId, ApiKey);
-	}
-	catch(error) {
-		return {status: 'error', error: error}
-	}
-}
-
-module.exports = getStreamer;
+module.exports = getStreamerData;

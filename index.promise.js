@@ -1,6 +1,5 @@
-const youtube = require('./youtube');
-const twitch = require('./twitch');
-const cache = require('./cache');
+const youtube = require('./youtube.promise');
+const twitch = require('./twitch.promise');
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -19,13 +18,19 @@ app.get('/video/:id/:apikey', (req, res) => {
         res.status(400).send('Video ID is required');
     if(req.params.apikey == '')
         res.status(400).send('Google API key is required');
-    youtube(req.params.id, req.params.apikey, cache, res);
+    (async function () {
+        let result = await youtube(req.params.id, req.params.apikey);
+        res.json(result);
+    })();
 });
 
 app.get('/video/:id', (req, res) => {
     if(req.params.id == '')
         res.status(400).send('Video ID is required');
-    youtube(req.params.id, GOOGLE_APIKEY, cache, res);
+    (async function () {
+        let result = await youtube(req.params.id, GOOGLE_APIKEY);
+        res.json(result);
+    })();
 });
 
 app.get('/streamer/:name/:apikey', (req, res) => {
@@ -33,13 +38,19 @@ app.get('/streamer/:name/:apikey', (req, res) => {
         res.status(400).send('Streamer name is required');
     if(req.params.apikey == '')
         res.status(400).send('Twitch Client ID  key is required');
-    twitch(req.params.name, req.params.apikey, cache, res);
+    (async function () {
+        let result = await twitch(req.params.name, req.params.apikey);
+        res.json(result);
+    })();
 });
 
 app.get('/streamer/:name', (req, res) => {
     if(req.params.name == '')
         res.status(400).send('Streamer name is required');
-    twitch(req.params.name, TWITCH_CLIENT_ID, cache, res);
+    (async function () {
+        let result = await twitch(req.params.name, TWITCH_CLIENT_ID);
+        res.json(result);
+    })();
 });
 
 const port = process.env.PORT || 8080;
